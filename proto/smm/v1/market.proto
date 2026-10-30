@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+package smm.v1;
+
+service MarketAnalytics {
+  rpc Analyze(AnalyzeRequest) returns (AnalyzeResponse);
+  rpc Health(HealthRequest) returns (HealthResponse);
+}
+
+message Candle {
+  int64 open_time = 1;
+  double open = 2;
+  double high = 3;
+  double low = 4;
+  double close = 5;
+  double volume = 6;
+}
+
+message IndicatorConfig {
+  int32 rsi_period = 1;
+  int32 bollinger_period = 2;
+  double bollinger_stddev = 3;
+  int32 fast_ma = 4;
+  int32 slow_ma = 5;
+  int32 forecast_window = 6;
+  int32 forecast_horizon = 7;
+}
+
+message SeriesPoint {
+  int64 open_time = 1;
+  double value = 2;
+}
+
+message IndicatorSeries {
+  string name = 1;
+  repeated SeriesPoint points = 2;
+  repeated SeriesPoint upper = 3;
+  repeated SeriesPoint lower = 4;
+}
+
+message Forecast {
+  double slope = 1;
+  double intercept = 2;
+  double r_squared = 3;
+  repeated double values = 4;
+  string direction = 5;
+  int32 window = 6;
+}
+
+message Signal {
+  string symbol = 1;
+  int64 open_time = 2;
+  string kind = 3;
+  string severity = 4;
+  string message = 5;
+  double value = 6;
+}
+
+message AnalyzeRequest {
+  string symbol = 1;
+  repeated Candle candles = 2;
+  IndicatorConfig config = 3;
+  bool include_series = 4;
+}
+
+message AnalyzeResponse {
+  string symbol = 1;
+  int64 as_of = 2;
+  double last_close = 3;
+  map<string, double> latest = 4;
+  repeated IndicatorSeries series = 5;
+  Forecast forecast = 6;
+  repeated Signal signals = 7;
+}
+
+message HealthRequest {}
+
+message HealthResponse {
+  string status = 1;
+  string version = 2;
+  int64 analyzed = 3;
+}

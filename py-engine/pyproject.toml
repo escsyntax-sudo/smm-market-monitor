@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "smm-engine"
+version = "0.1.0"
+description = "Technical indicator and regression engine behind the SMM gateway"
+requires-python = ">=3.11"
+dependencies = [
+    "grpcio>=1.85,<2",
+    "numpy>=2,<3",
+    "protobuf>=7.35,<8",
+]
+
+[project.optional-dependencies]
+dev = ["grpcio-tools>=1.85,<2", "pytest>=8", "ruff>=0.8"]
+
+[tool.setuptools.packages.find]
+include = ["smm*", "smm_engine*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

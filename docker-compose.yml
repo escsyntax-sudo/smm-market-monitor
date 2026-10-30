@@ -1,0 +1,45 @@
+services:
+  engine:
+    build:
+      context: ./py-engine
+    environment:
+      SMM_ENGINE_HOST: 0.0.0.0
+      SMM_ENGINE_PORT: "50051"
+      SMM_ENGINE_WORKERS: "4"
+      SMM_MAX_CANDLES: "5000"
+    expose:
+      - "50051"
+    restart: unless-stopped
+
+  gateway:
+    build:
+      context: .
+      dockerfile: node-gateway/Dockerfile
+    depends_on:
+      - engine
+    environment:
+      NODE_ENV: production
+      PORT: "8090"
+      HOST: 0.0.0.0
+      SMM_ENGINE_URL: engine:50051
+      PROTO_PATH: /proto/smm/v1/market.proto
+      SMM_API_KEY: ${SMM_API_KEY:?set SMM_API_KEY before starting}
+      DEMO_FEED: ${DEMO_FEED:-true}
+      DEMO_SYMBOLS: ${DEMO_SYMBOLS:-BTC-USD,ETH-USD,SOL-USD}
+      DEMO_TICK_MS: ${DEMO_TICK_MS:-1000}
+      DEMO_CANDLE_MS: ${DEMO_CANDLE_MS:-15000}
+      CORS_ORIGIN: ${CORS_ORIGIN:-}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    ports:
+      - "${PORT:-8090}:8090"
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:8090/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
