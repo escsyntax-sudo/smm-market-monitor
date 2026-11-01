@@ -68,6 +68,15 @@ def test_forecast_on_a_perfect_line():
     assert np.isclose(result["values"][-1], 35.0)
 
 
+def test_forecast_on_two_points():
+    result = linear_forecast(np.array([10.0, 12.0]), 20, 3)
+    assert result["window"] == 2
+    assert np.isclose(result["slope"], 2.0)
+    assert np.isclose(result["r_squared"], 1.0)
+    assert result["direction"] == "up"
+    assert np.allclose(result["values"], [14.0, 16.0, 18.0])
+
+
 def test_config_validation_clamps_values():
     config = IndicatorConfig(rsi_period=1, bollinger_period=0, fast_ma=50, slow_ma=10, forecast_window=1)
     validated = config.validated()

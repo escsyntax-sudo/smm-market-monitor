@@ -107,7 +107,9 @@ def linear_forecast(
     window: int,
     horizon: int,
 ) -> dict:
-    window = max(3, min(window, len(values)))
+    if len(values) < 2:
+        raise ValueError("at least two values are required for a forecast")
+    window = min(max(3, window), len(values))
     sample = values[-window:]
     x = np.arange(window, dtype=float)
     slope, intercept = np.polyfit(x, sample, 1)

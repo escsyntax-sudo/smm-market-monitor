@@ -53,6 +53,14 @@ def test_short_series_does_not_crash_indicator_math():
     assert result["forecast"]["direction"] in {"up", "down", "flat"}
 
 
+def test_two_bar_series_produces_a_forecast():
+    result = analyze("BTC-USD", build_bars([10.0, 11.0]), IndicatorConfig())
+    assert result["forecast"]["window"] == 2
+    assert result["forecast"]["direction"] == "up"
+    assert len(result["forecast"]["values"]) == 5
+    assert result["latest"]["forecast_slope"] > 0
+
+
 def test_invalid_candles_are_rejected():
     with pytest.raises(ValueError):
         analyze("BTC-USD", build_bars([100.0]), IndicatorConfig())
